@@ -16,7 +16,14 @@ describe("SessionRedirect", () => {
   });
 
   it("sends an authenticated visitor to /app", async () => {
-    getSessionMock.mockResolvedValue({ userId: "user-1" });
+    getSessionMock.mockResolvedValue({
+      user: {
+        id: "user-1",
+        email: "ada@example.com",
+        name: "Ada Lovelace",
+        isAdmin: false,
+      },
+    });
 
     await SessionRedirect();
 

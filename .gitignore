@@ -40,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/prisma/generated/client
+.claude/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/

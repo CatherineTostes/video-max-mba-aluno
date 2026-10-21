@@ -1,0 +1,30 @@
+# Local development database for VideoMax MBA.
+#
+# Bound to host port 5433 because 5432 is commonly already taken by a
+# system-wide Postgres. Integration tests do not use this container — they spin
+# up their own throwaway one via testcontainers.
+#
+#   docker compose up -d
+#   npm run db:migrate
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: videomax-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: videomax
+      POSTGRES_PASSWORD: videomax
+      POSTGRES_DB: videomax
+    ports:
+      - "5433:5432"
+    volumes:
+      - videomax-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U videomax -d videomax"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  videomax-postgres-data:
