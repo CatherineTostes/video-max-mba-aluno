@@ -1,0 +1,46 @@
+// VideoMax MBA — database schema.
+//
+// F02 (Authentication System) bootstraps this file with the two tables every
+// later feature builds on. Column names are snake_cased via `@map` so the SQL
+// stays idiomatic while the TypeScript client stays camelCase.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../prisma/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String    @db.VarChar(120)
+  email        String    @unique(map: "ux_user_email") @db.VarChar(255)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  /// Gates `/admin/*` (F12). Added now so F12 ships without a migration.
+  isAdmin      Boolean   @default(false) @map("is_admin")
+  /// Blocks login (F12). Flipping it should also delete the user's sessions.
+  isSuspended  Boolean   @default(false) @map("is_suspended")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  sessions     Session[]
+
+  @@map("user")
+}
+
+model Session {
+  /// Opaque base64url-encoded 32 random bytes; this is the cookie value.
+  id                String   @id @db.VarChar(64)
+  userId            String   @map("user_id")
+  /// Sliding expiry, pushed forward on authenticated reads.
+  expiresAt         DateTime @map("expires_at") @db.Timestamptz(6)
+  /// Hard cap; the session dies here no matter how often it was refreshed.
+  absoluteExpiresAt DateTime @map("absolute_expires_at") @db.Timestamptz(6)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_session_user")
+
+  @@index([userId], map: "ix_session_user_id")
+  @@index([expiresAt], map: "ix_session_expires_at")
+  @@map("session")
+}
