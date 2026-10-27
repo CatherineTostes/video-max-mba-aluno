@@ -17,11 +17,11 @@ process.env.SESSION_SECRET =
 const { prisma } = await import("@/app/_lib/db");
 
 beforeEach(async () => {
-  // CASCADE because `session` has a foreign key onto `user`; RESTART IDENTITY
+  // CASCADE because `session` and `video` have foreign keys onto `user`; RESTART IDENTITY
   // is harmless here and keeps the statement correct if a later feature adds a
   // serial column.
   await prisma.$executeRawUnsafe(
-    'TRUNCATE TABLE "session", "user" RESTART IDENTITY CASCADE',
+    'TRUNCATE TABLE "video", "session", "user" RESTART IDENTITY CASCADE',
   );
 
   testCookieJar.reset();

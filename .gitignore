@@ -42,6 +42,9 @@ yarn-error.log*
 next-env.d.ts
 
 /prisma/generated/client
+
+# F03 uploads (videos + thumbnails) — never commit user files
+/storage/
 .claude/
 # Playwright CLI output (may contain credentials)
 .playwright-cli/
